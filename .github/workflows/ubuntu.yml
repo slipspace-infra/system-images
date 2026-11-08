@@ -1,0 +1,33 @@
+name: ubuntu
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ubuntu/**
+      - common.conf
+      - mkosi.extra/**
+      - mkosi.postinst.chroot
+      - mkosi.finalize.chroot
+      - .github/workflows/ubuntu.yml
+      - .github/workflows/system-images.yml
+  schedule:
+    - cron: "0 3 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  system-images:
+    uses: ./.github/workflows/system-images.yml
+    with:
+      distro: ubuntu
+      channels: '["lts", "latest", "devel"]'
+      tags: |
+        {
+          "lts": "lts,resolute,26.04",
+          "latest": "latest,rolling,stonking,26.10",
+          "devel": "devel"
+        }

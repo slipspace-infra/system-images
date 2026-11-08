@@ -1,0 +1,49 @@
+name: system-images
+
+on:
+  workflow_call:
+    inputs:
+      distro:
+        type: string
+        required: true
+      channels:
+        type: string
+        required: true
+      tags:
+        type: string
+        default: "{}"
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  IMAGE: ghcr.io/${{ github.repository }}/${{ inputs.distro }}
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        channel: ${{ fromJSON(inputs.channels) }}
+    runs-on: ubuntu-26.04
+    container:
+      image: ghcr.io/${{ github.repository }}/mkosi:latest
+      options: --privileged
+    defaults:
+      run:
+        shell: bash
+        working-directory: ${{ inputs.distro }}
+    env:
+      CONFIG: ${{ matrix.channel }}.conf
+      LAYOUT: mkosi.output/${{ inputs.distro }}-${{ matrix.channel }}:${{ inputs.distro }}-${{ matrix.channel }}
+      TAGS: ${{ fromJSON(inputs.tags)[matrix.channel] || matrix.channel }}
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+      - run: oras login ghcr.io --username "$GITHUB_ACTOR" --password-stdin <<< "$GITHUB_TOKEN"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - run: mkosi --include "$CONFIG" --force build
+      - run: oras cp --from-oci-layout "$LAYOUT" "${IMAGE,,}:$TAGS"

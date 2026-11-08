@@ -1,0 +1,33 @@
+name: debian
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - debian/**
+      - common.conf
+      - mkosi.extra/**
+      - mkosi.postinst.chroot
+      - mkosi.finalize.chroot
+      - .github/workflows/debian.yml
+      - .github/workflows/system-images.yml
+  schedule:
+    - cron: "15 3 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  system-images:
+    uses: ./.github/workflows/system-images.yml
+    with:
+      distro: debian
+      channels: '["lts", "latest", "devel"]'
+      tags: |
+        {
+          "lts": "lts,stable,trixie,13",
+          "latest": "latest,testing,forky",
+          "devel": "devel,unstable,sid"
+        }

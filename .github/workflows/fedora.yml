@@ -1,0 +1,32 @@
+name: fedora
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - fedora/**
+      - common.conf
+      - mkosi.extra/**
+      - mkosi.postinst.chroot
+      - mkosi.finalize.chroot
+      - .github/workflows/fedora.yml
+      - .github/workflows/system-images.yml
+  schedule:
+    - cron: "30 3 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  system-images:
+    uses: ./.github/workflows/system-images.yml
+    with:
+      distro: fedora
+      channels: '["latest", "devel"]'
+      tags: |
+        {
+          "latest": "latest,lts,45",
+          "devel": "devel,rawhide"
+        }
