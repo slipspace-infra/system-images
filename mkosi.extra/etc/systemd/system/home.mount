@@ -1,0 +1,12 @@
+# @home on the discovered root
+[Unit]
+Description=Home subvolume
+
+[Mount]
+What=/dev/gpt-auto-root
+Where=/home
+Type=btrfs
+Options=subvol=@home
+
+[Install]
+WantedBy=local-fs.target

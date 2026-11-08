@@ -1,0 +1,7 @@
+#!/bin/sh
+# add -backports next to -updates
+
+set -eu
+
+sed -i 's/^Suites: \(.*\)-updates$/& \1-backports/' \
+    "$BUILDROOT"/etc/apt/sources.list.d/*.sources

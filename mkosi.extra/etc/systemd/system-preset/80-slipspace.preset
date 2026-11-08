@@ -1,0 +1,2 @@
+# fedora disables unlisted units
+enable home.mount

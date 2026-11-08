@@ -1,0 +1,4 @@
+#!/bin/sh
+# classic snap support
+set -e
+ln -s /var/lib/snapd/snap /snap
