@@ -45,8 +45,10 @@ jobs:
       - run: oras login ghcr.io --username "$GITHUB_ACTOR" --password-stdin <<< "$GITHUB_TOKEN"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - run: oras pull "${IMAGE,,}:buildcache-${{ matrix.channel }}" || echo "no package cache yet"
       - run: >-
           mkosi --include "$CONFIG" --force
           --oci-annotations="org.opencontainers.image.revision=$GITHUB_SHA org.opencontainers.image.created=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
           build
       - run: oras cp --from-oci-layout "$LAYOUT" "${IMAGE,,}:$TAGS"
+      - run: oras push "${IMAGE,,}:buildcache-${{ matrix.channel }}" mkosi.pkgcache/
