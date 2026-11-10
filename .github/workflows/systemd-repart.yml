@@ -28,6 +28,6 @@ jobs:
         with:
           archs: amd64,arm64
           config: tools/systemd-repart.yaml
-          tag: ghcr.io/slipspace-infra/systemd-repart:latest
+          tag: ghcr.io/slipspace-infra/system-images/systemd-repart:latest
           source-date-epoch: ${{ steps.commit.outputs.epoch }}
           annotations: org.opencontainers.image.revision:${{ github.sha }}
