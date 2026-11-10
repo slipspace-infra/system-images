@@ -1,2 +1,3 @@
 # fedora disables unlisted units
 enable home.mount
+enable slipspace-selinux-relabel.service

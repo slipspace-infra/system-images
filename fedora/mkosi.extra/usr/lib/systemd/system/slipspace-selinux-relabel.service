@@ -12,3 +12,6 @@ ExecStart=restorecon -RF -T 0 /
 ExecStart=sed -i s/^SELINUX=permissive/SELINUX=enforcing/ /etc/selinux/config
 ExecStart=rm -f /usr/lib/systemd/system/slipspace-selinux-relabel.service /etc/systemd/system/sysinit.target.wants/slipspace-selinux-relabel.service
 ExecStart=systemctl --no-block reboot
+
+[Install]
+WantedBy=sysinit.target
