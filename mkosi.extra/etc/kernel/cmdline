@@ -1,1 +1,1 @@
-rw quiet splash
+rw quiet splash systemd.firstboot=off

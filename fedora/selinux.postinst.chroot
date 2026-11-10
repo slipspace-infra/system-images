@@ -1,0 +1,5 @@
+#!/bin/sh
+# rootless builds can't label files: boot permissive until slipspace-selinux-relabel has
+
+set -e
+sed -i s/^SELINUX=enforcing/SELINUX=permissive/ /etc/selinux/config

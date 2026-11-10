@@ -1,0 +1,14 @@
+# rootless builds can't label files: relabel on first boot, enforce, then remove this unit and reboot
+[Unit]
+Description=Relabel SELinux on first boot
+DefaultDependencies=no
+ConditionSecurity=selinux
+After=local-fs.target
+Before=sysinit.target
+
+[Service]
+Type=oneshot
+ExecStart=restorecon -RF -T 0 /
+ExecStart=sed -i s/^SELINUX=permissive/SELINUX=enforcing/ /etc/selinux/config
+ExecStart=rm -f /usr/lib/systemd/system/slipspace-selinux-relabel.service /etc/systemd/system/sysinit.target.wants/slipspace-selinux-relabel.service
+ExecStart=systemctl --no-block reboot
