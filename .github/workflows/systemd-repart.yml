@@ -1,0 +1,33 @@
+# Builds and publishes the systemd-repart image (repart and mkfs) with apko, which the builder writes disk images with.
+name: systemd-repart
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - tools/systemd-repart.yaml
+      - .github/workflows/systemd-repart.yml
+  schedule:
+    - cron: "45 3 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  image:
+    runs-on: ubuntu-26.04
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+      - id: commit
+        run: echo "epoch=$(git log -1 --format=%ct)" >> "$GITHUB_OUTPUT"
+      - uses: chainguard-images/actions/apko-publish@main
+        with:
+          archs: amd64,arm64
+          config: tools/systemd-repart.yaml
+          tag: ghcr.io/slipspace-infra/systemd-repart:latest
+          source-date-epoch: ${{ steps.commit.outputs.epoch }}
+          annotations: org.opencontainers.image.revision:${{ github.sha }}
