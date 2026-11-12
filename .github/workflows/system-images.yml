@@ -23,6 +23,7 @@ env:
 jobs:
   # one image per channel and architecture, each built natively and pushed as <channel>-<arch>
   build:
+    name: ${{ inputs.distro }}:${{ matrix.channel }} (${{ matrix.platform.arch }})
     strategy:
       fail-fast: false
       matrix:
@@ -42,8 +43,6 @@ jobs:
       CONFIG: ${{ matrix.channel }}.conf
       LAYOUT: mkosi.output/${{ inputs.distro }}-${{ matrix.channel }}:${{ inputs.distro }}-${{ matrix.channel }}
       PLATFORM: ${{ matrix.channel }}-${{ matrix.platform.arch }}
-      # the installed tree never picks up package updates, so cron and manual runs rebuild it
-      REBUILD: ${{ github.event_name != 'push' }}
     steps:
       - uses: actions/checkout@v7.0.1
         with:
@@ -54,42 +53,18 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Restore installed tree
-        id: tree
-        if: env.REBUILD == 'false'
-        continue-on-error: true
-        env: &tree
-          # keyed by the mkosi configs, and the Dockerfile for the package manager mkosi runs
-          TREE: ${{ env.IMAGE }}:tree-${{ matrix.channel }}-${{ matrix.platform.arch }}-${{ hashFiles('Dockerfile', 'common.conf', format('{0}/*.conf', inputs.distro), format('{0}/mkosi.conf.d/*', inputs.distro)) }}
-          TAR_OPTIONS: --numeric-owner --acls --xattrs --xattrs-include=* --zstd
-        run: oras pull "${TREE,,}" && tar -xpf tree.tar.zst
-
-      # the package cache only matters when mkosi installs packages
-      - name: Restore package cache
-        if: steps.tree.outcome != 'success'
-        run: oras pull "${IMAGE,,}:buildcache-$PLATFORM" || echo "no package cache yet"
-
-      # -ff whenever no tree was restored, which also discards a half-unpacked one
       - name: Build
         run: >-
-          mkosi --include "$CONFIG" ${{ steps.tree.outcome == 'success' && '-f' || '-ff' }}
+          mkosi --include "$CONFIG" -f
           --oci-annotations="org.opencontainers.image.revision=$GITHUB_SHA org.opencontainers.image.created=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
           build
 
       - name: Push image
         run: oras cp --from-oci-layout "$LAYOUT" "${IMAGE,,}:$PLATFORM"
 
-      - name: Save package cache
-        if: steps.tree.outcome != 'success'
-        run: oras push "${IMAGE,,}:buildcache-$PLATFORM" mkosi.pkgcache/
-
-      - name: Save installed tree
-        if: steps.tree.outcome != 'success'
-        env: *tree
-        run: tar -cpf tree.tar.zst mkosi.cache && oras push "${TREE,,}" tree.tar.zst
-
   # stitch each channel's per-arch images into one index under the channel's tags
   manifest:
+    name: ${{ inputs.distro }}:${{ matrix.channel }}
     needs: build
     strategy:
       fail-fast: false
