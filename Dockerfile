@@ -6,7 +6,7 @@ SHELL ["/bin/bash", "-euxo", "pipefail", "-c"]
 RUN --mount=type=cache,target=/var/lib/apt/lists,sharing=locked \
     --mount=type=tmpfs,target=/var/log <<-EOT
 	apt-get update
-	apt-get install -y --no-install-recommends tini ca-certificates git mkosi oras \
+	apt-get install -y --no-install-recommends tini ca-certificates git mkosi oras skopeo \
 		debian-archive-keyring ubuntu-keyring systemd zstd \
 		dnf5 rpm distribution-gpg-keys
 EOT
