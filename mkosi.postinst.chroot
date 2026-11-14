@@ -1,6 +1,0 @@
-#!/bin/sh
-# add flathub
-
-set -e
-flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
-rm -rf /var/lib/flatpak/repo/tmp/cache

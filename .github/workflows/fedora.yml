@@ -7,7 +7,6 @@ on:
       - fedora/**
       - common.conf
       - mkosi.extra/**
-      - mkosi.postinst.chroot
       - mkosi.finalize.chroot
       - .github/workflows/fedora.yml
       - .github/workflows/system-images.yml

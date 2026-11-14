@@ -7,7 +7,6 @@ on:
       - ubuntu/**
       - common.conf
       - mkosi.extra/**
-      - mkosi.postinst.chroot
       - mkosi.finalize.chroot
       - .github/workflows/ubuntu.yml
       - .github/workflows/system-images.yml
