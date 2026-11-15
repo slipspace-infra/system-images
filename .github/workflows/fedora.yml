@@ -21,6 +21,7 @@ permissions:
 jobs:
   system-images:
     uses: ./.github/workflows/system-images.yml
+    secrets: inherit
     with:
       distro: fedora
       channels: '["latest", "devel"]'

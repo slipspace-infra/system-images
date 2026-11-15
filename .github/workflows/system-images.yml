@@ -18,7 +18,8 @@ permissions:
   packages: write
 
 env:
-  IMAGE: ghcr.io/${{ github.repository }}/${{ inputs.distro }}
+  GHCR_IMAGE: ghcr.io/${{ github.repository }}/${{ inputs.distro }}
+  QUAY_IMAGE: quay.io/slipspace/system-images/${{ inputs.distro }}
 
 jobs:
   # one image per channel and architecture, each built natively and pushed as <channel>-<arch>
@@ -48,19 +49,28 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Log in to github container registry
-        run: oras login ghcr.io --username "$GITHUB_ACTOR" --password-stdin <<< "$GITHUB_TOKEN"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Build
         run: >-
           mkosi --include "$CONFIG" -f
           --oci-annotations="org.opencontainers.image.revision=$GITHUB_SHA org.opencontainers.image.created=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
           build
 
+      - name: Log in to github container registry
+        run: oras login ghcr.io --username "$GITHUB_ACTOR" --password-stdin <<< "$GITHUB_TOKEN"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Log in to quay container registry
+        run: oras login quay.io --username "$QUAY_USERNAME" --password-stdin <<< "$QUAY_TOKEN"
+        env:
+          QUAY_USERNAME: ${{ vars.QUAY_USERNAME }}
+          QUAY_TOKEN: ${{ secrets.QUAY_TOKEN }}
+
       - name: Push image
-        run: oras cp --from-oci-layout "$LAYOUT" "${IMAGE,,}:$PLATFORM"
+        run: |
+          for image in "${GHCR_IMAGE,,}" "$QUAY_IMAGE"; do
+            oras cp --from-oci-layout "$LAYOUT" "$image:$PLATFORM"
+          done
 
   # stitch each channel's per-arch images into one index under the channel's tags
   manifest:
@@ -82,9 +92,17 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Log in to quay container registry
+        run: oras login quay.io --username "$QUAY_USERNAME" --password-stdin <<< "$QUAY_TOKEN"
+        env:
+          QUAY_USERNAME: ${{ vars.QUAY_USERNAME }}
+          QUAY_TOKEN: ${{ secrets.QUAY_TOKEN }}
+
       # oras reads each image's platform from its config, which mkosi fills in
       - name: Push index
-        run: >-
-          oras manifest index create "${IMAGE,,}:$TAGS"
-          "${{ matrix.channel }}-amd64" "${{ matrix.channel }}-arm64"
-          --annotation "org.opencontainers.image.revision=$GITHUB_SHA"
+        run: |
+          for image in "${GHCR_IMAGE,,}" "$QUAY_IMAGE"; do
+            oras manifest index create "$image:$TAGS" \
+              "${{ matrix.channel }}-amd64" "${{ matrix.channel }}-arm64" \
+              --annotation "org.opencontainers.image.revision=$GITHUB_SHA"
+          done
