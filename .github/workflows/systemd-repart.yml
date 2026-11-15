@@ -28,6 +28,10 @@ jobs:
         with:
           archs: amd64,arm64
           config: tools/systemd-repart.yaml
-          tag: ghcr.io/slipspace-infra/system-images/systemd-repart:latest
+          tag: >-
+            quay.io/slipspace/system-images/systemd-repart:latest
+            ghcr.io/slipspace-infra/system-images/systemd-repart:latest
+          generic-user: ${{ vars.QUAY_USERNAME }}
+          generic-pass: ${{ secrets.QUAY_TOKEN }}
           source-date-epoch: ${{ steps.commit.outputs.epoch }}
           annotations: org.opencontainers.image.revision:${{ github.sha }}
