@@ -1,0 +1,2 @@
+# always lf, even on windows checkouts: configs and scripts run in linux containers
+* text=auto eol=lf
