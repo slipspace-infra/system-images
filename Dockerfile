@@ -8,7 +8,9 @@ RUN --mount=type=cache,target=/var/lib/apt/lists,sharing=locked \
 	apt-get update
 	apt-get install -y --no-install-recommends tini ca-certificates git mkosi oras skopeo \
 		debian-archive-keyring ubuntu-keyring systemd zstd \
-		dnf5 rpm distribution-gpg-keys
+		dnf rpm distribution-gpg-keys \
+		zypper \
+		pacman-package-manager archlinux-keyring
 EOT
 
 STOPSIGNAL SIGTERM
