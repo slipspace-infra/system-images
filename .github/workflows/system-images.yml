@@ -12,6 +12,9 @@ on:
       tags:
         type: string
         default: "{}"
+      arches:
+        type: string
+        default: '["amd64", "arm64"]'
 
 permissions:
   contents: read
@@ -24,15 +27,13 @@ env:
 jobs:
   # one image per channel and architecture, each built natively and pushed as <channel>-<arch>
   build:
-    name: ${{ inputs.distro }}:${{ matrix.channel }} (${{ matrix.platform.arch }})
+    name: ${{ inputs.distro }}:${{ matrix.channel }} (${{ matrix.arch }})
     strategy:
       fail-fast: false
       matrix:
         channel: ${{ fromJSON(inputs.channels) }}
-        platform:
-          - { arch: amd64, runner: ubuntu-26.04 }
-          - { arch: arm64, runner: ubuntu-26.04-arm }
-    runs-on: ${{ matrix.platform.runner }}
+        arch: ${{ fromJSON(inputs.arches) }}
+    runs-on: ${{ matrix.arch == 'arm64' && 'ubuntu-26.04-arm' || 'ubuntu-26.04' }}
     container:
       image: ghcr.io/${{ github.repository }}/mkosi:latest
       options: --privileged
@@ -43,7 +44,7 @@ jobs:
     env:
       CONFIG: ${{ matrix.channel }}.conf
       LAYOUT: mkosi.output/${{ inputs.distro }}-${{ matrix.channel }}:${{ inputs.distro }}-${{ matrix.channel }}
-      PLATFORM: ${{ matrix.channel }}-${{ matrix.platform.arch }}
+      PLATFORM: ${{ matrix.channel }}-${{ matrix.arch }}
     steps:
       - uses: actions/checkout@v7.0.1
         with:
@@ -84,6 +85,7 @@ jobs:
     runs-on: ubuntu-slim
     env:
       TAGS: ${{ fromJSON(inputs.tags)[matrix.channel] || matrix.channel }}
+      ARCHES: ${{ join(fromJSON(inputs.arches), ' ') }}
     steps:
       - uses: oras-project/setup-oras@v2.0.3
 
@@ -101,8 +103,10 @@ jobs:
       # oras reads each image's platform from its config, which mkosi fills in
       - name: Push index
         run: |
+          refs=()
+          for arch in $ARCHES; do refs+=("${{ matrix.channel }}-$arch"); done
           for image in "${GHCR_IMAGE,,}" "$QUAY_IMAGE"; do
             oras manifest index create "$image:$TAGS" \
-              "${{ matrix.channel }}-amd64" "${{ matrix.channel }}-arm64" \
+              "${refs[@]}" \
               --annotation "org.opencontainers.image.revision=$GITHUB_SHA"
           done

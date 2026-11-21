@@ -1,0 +1,32 @@
+name: opensuse
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - opensuse/**
+      - common.conf
+      - mkosi.extra/**
+      - mkosi.finalize.chroot
+      - .github/workflows/opensuse.yml
+      - .github/workflows/system-images.yml
+  schedule:
+    - cron: "45 3 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  system-images:
+    uses: ./.github/workflows/system-images.yml
+    secrets: inherit
+    with:
+      distro: opensuse
+      channels: '["lts", "latest"]'
+      tags: |
+        {
+          "lts": "lts,leap,16.1",
+          "latest": "latest,tumbleweed"
+        }
