@@ -1,0 +1,4 @@
+#!/bin/sh
+# devel channel: keep pulling from the testing repos after install, not only at build time
+set -e
+sed -i '/^#\[\(core\|extra\)-testing\]$/,/^$/ s/^#//' /etc/pacman.conf

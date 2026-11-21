@@ -1,0 +1,15 @@
+# the image ships no pacman keyring: create one per machine on first boot, so no two
+# machines share a local signing key
+[Unit]
+Description=Initialize pacman keyring
+ConditionPathExists=!/etc/pacman.d/gnupg/trustdb.gpg
+Before=sshd.service systemd-user-sessions.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=pacman-key --init
+ExecStart=pacman-key --populate
+
+[Install]
+WantedBy=multi-user.target

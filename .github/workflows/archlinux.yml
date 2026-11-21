@@ -24,10 +24,12 @@ jobs:
     secrets: inherit
     with:
       distro: archlinux
-      channels: '["latest"]'
+      channels: '["lts", "latest", "devel"]'
       # arch linux ships x86_64 only, arch linux arm is a separate project
       arches: '["amd64"]'
       tags: |
         {
-          "latest": "latest,rolling"
+          "lts": "lts",
+          "latest": "latest",
+          "devel": "devel"
         }

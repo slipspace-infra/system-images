@@ -1,0 +1,2 @@
+# per-machine pacman keyring on first boot
+enable slipspace-pacman-init.service
