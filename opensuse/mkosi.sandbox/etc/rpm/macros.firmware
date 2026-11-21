@@ -1,0 +1,2 @@
+# suse macro the debian-built rpm in the mkosi image lacks: sof-firmware's lua %pretrans needs it
+%_firmwaredir /usr/lib/firmware

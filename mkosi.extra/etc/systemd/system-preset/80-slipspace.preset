@@ -1,3 +1,12 @@
 # fedora disables unlisted units
 enable home.mount
 enable slipspace-selinux-relabel.service
+
+# networkmanager everywhere: arch leaves it disabled, and systemd's own preset turns on
+# networkd next to it on debian, ubuntu and arch, so boot waits on two wait-online services
+enable NetworkManager.service
+enable NetworkManager-wait-online.service
+disable systemd-networkd*
+
+# dbus-broker for the system bus where installed, debian leaves it off by default
+enable dbus-broker.service
