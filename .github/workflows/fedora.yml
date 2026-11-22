@@ -27,6 +27,6 @@ jobs:
       channels: '["latest", "devel"]'
       tags: |
         {
-          "latest": "latest,lts,45",
+          "latest": "latest,45",
           "devel": "devel,rawhide"
         }

@@ -1,0 +1,2 @@
+# first-boot relabel, rootless builds cannot label files
+enable slipspace-selinux-relabel.service

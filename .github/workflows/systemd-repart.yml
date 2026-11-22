@@ -29,7 +29,7 @@ jobs:
           archs: amd64,arm64
           config: tools/systemd-repart.yaml
           tag: >-
-            quay.io/slipspace/system-images/systemd-repart:latest
+            quay.io/slipspace-infra/system-images/systemd-repart:latest
             ghcr.io/slipspace-infra/system-images/systemd-repart:latest
           generic-user: ${{ vars.QUAY_USERNAME }}
           generic-pass: ${{ secrets.QUAY_TOKEN }}

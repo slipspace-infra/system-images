@@ -24,9 +24,8 @@ jobs:
     secrets: inherit
     with:
       distro: opensuse
-      channels: '["lts", "latest"]'
+      channels: '["latest"]'
       tags: |
         {
-          "lts": "lts,leap,16.1",
           "latest": "latest,tumbleweed"
         }

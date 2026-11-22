@@ -22,7 +22,7 @@ permissions:
 
 env:
   GHCR_IMAGE: ghcr.io/${{ github.repository }}/${{ inputs.distro }}
-  QUAY_IMAGE: quay.io/slipspace/system-images/${{ inputs.distro }}
+  QUAY_IMAGE: quay.io/slipspace-infra/system-images/${{ inputs.distro }}
 
 jobs:
   # one image per channel and architecture, each built natively and pushed as <channel>-<arch>
