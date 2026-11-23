@@ -7,5 +7,8 @@ enable NetworkManager.service
 enable NetworkManager-wait-online.service
 disable systemd-networkd*
 
+# resolved for dns everywhere, networkmanager hands it the servers it gets
+enable systemd-resolved.service
+
 # dbus-broker for the system bus where installed, debian leaves it off by default
 enable dbus-broker.service
